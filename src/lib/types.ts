@@ -1,21 +1,11 @@
 export interface Country {
+  country_code: string;
   id: string;
   name: string;
-  code: string;
-  latitude: number;
-  longitude: number;
-  created_at?: string;
-}
-
-export interface HistoricalEvent {
-  id: string;
-  country_id: string;
-  title: string;
-  description: string;
-  year: number;
-  date?: string;
-  category: string;
-  image_url?: string;
-  youtube_url?: string;
-  created_at?: string;
+  flag_url: string | null;
+  current_capital: string | null;
+  current_population: number | null;
+  region: string | null;
+  created_at: string;
+  updated_at: string;
 }

@@ -15,8 +15,6 @@ interface WorldMapProps {
 
 // ========================================
 // HELPER FUNCTION: Generate Consistent Color Per Country
-// This creates a unique color for each country based on its name
-// Same country always gets the same color
 // ========================================
 function getCountryColor(countryName: string): string {
   let hash = 0;
@@ -24,27 +22,16 @@ function getCountryColor(countryName: string): string {
     hash = countryName.charCodeAt(i) + ((hash << 5) - hash);
   }
 
-  // Limit hue to 0-60 (reds to yellows)
   const hue = Math.abs(hash % 60);
-
   return `hsl(${hue}, 70%, 50%)`;
 }
 
 // ========================================
 // HELPER FUNCTION: Calculate Country Center
-// Used for zooming camera to a country when clicked
 // ========================================
-/**
- * Get country center from properties if available
- * Falls back to bounding box calculation
- * @param country - The GeoJSON country feature
- * @returns {lat, lng} coordinates of the center
- */
 function getCountryCenter(country: any) {
   const props = country.properties;
 
-  // Check if the GeoJSON already has center coordinates
-  // Different files use different property names
   if (props.LAT && props.LONG) {
     return { lat: props.LAT, lng: props.LONG };
   }
@@ -53,7 +40,6 @@ function getCountryCenter(country: any) {
     return { lat: props.LABEL_Y, lng: props.LABEL_X };
   }
 
-  // Fallback: Calculate bounding box center
   const geometry = country.geometry;
   let minLat = 90,
     maxLat = -90,
@@ -87,13 +73,10 @@ function getCountryCenter(country: any) {
 
 // ========================================
 // HELPER FUNCTION: Calculate Zoom Distance
-// Determines how far to zoom based on country size
-// Bigger countries need more distance to fit in view
 // ========================================
 function getZoomAltitude(country: any): number {
   const geometry = country.geometry;
 
-  // Calculate bounding box dimensions
   let minLat = 90,
     maxLat = -90,
     minLng = 180,
@@ -118,15 +101,12 @@ function getZoomAltitude(country: any): number {
     });
   }
 
-  // Calculate span (size) of country
   const latSpan = maxLat - minLat;
   const lngSpan = maxLng - minLng;
   const maxSpan = Math.max(latSpan, lngSpan);
 
-  // Calculate appropriate altitude
-  // Small countries (islands): zoom close (altitude ~0.5)
-  // Large countries (Russia, Canada): zoom far (altitude ~2.5)
-  const altitude = 1.5; // Adjust divisor for sensitivity
+  // Adjust altitude based on country size
+  const altitude = 1.5;
 
   return altitude;
 }
@@ -135,33 +115,32 @@ function getZoomAltitude(country: any): number {
 // COMPONENT
 // ========================================
 export default function WorldMap({ onCountryClick }: WorldMapProps) {
-  // ========================================
-  // STATE
-  // ========================================
-
-  // Store all country features from GeoJSON
   const [countries, setCountries] = useState({ features: [] });
-
-  // Track which country is currently hovered (for highlighting)
   const [hoverD, setHoverD] = useState<any>(null);
-
-  // Reference to the Globe component (for controlling camera)
   const globeEl = useRef<any>(null);
 
   // ========================================
   // LOAD COUNTRY DATA ON MOUNT
   // ========================================
   useEffect(() => {
-    console.log("🌍 Loading country data...");
+    console.log("Loading country data...");
 
-    // Fetch GeoJSON file from public folder
     fetch("2025.geojson")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
-        console.log("✅ Loaded", data.features.length, "countries");
+        console.log("Loaded", data.features.length, "countries");
+        console.log(
+          "📝 Sample country properties:",
+          data.features[0]?.properties
+        );
         setCountries(data);
       })
-      .catch((err) => console.error("❌ Error loading countries:", err));
+      .catch((err) => console.error("Error loading countries:", err));
   }, []);
 
   // ========================================
@@ -169,29 +148,39 @@ export default function WorldMap({ onCountryClick }: WorldMapProps) {
   // ========================================
   useEffect(() => {
     if (globeEl.current) {
+      console.log(" Initializing globe...");
       // Set initial camera position
       globeEl.current.pointOfView({ altitude: 2.5 });
 
-      // Enable auto-rotation
+      // Check controls
       const controls = globeEl.current.controls();
-      // controls.autoRotate = true;
-      // controls.autoRotateSpeed = 0.35;
+      if (controls) {
+        console.log("Globe controls available");
+      } else {
+        console.warn("⚠️ Globe controls not available");
+      }
 
-      console.log("🎥 Globe initialized");
+      console.log("Globe initialized successfully");
     }
-  }, []);
+  }, [countries]); // Run after countries are loaded
 
   // ========================================
   // EVENT HANDLER: Country Click
-  // Zooms to country and notifies parent component
   // ========================================
   const handleCountryClick = (country: any) => {
     if (country && country.properties) {
-      const countryCode = country.properties.ISO_A2;
-      const countryName = country.properties.ADMIN;
+      console.log("All country properties:", country.properties);
 
-      console.log("🖱️ Clicked:", countryName);
+      // Try multiple possible property names
+      const countryCode =
+        country.properties.ISO_A3 ||
+        country.properties.ADM0_A3 ||
+        country.properties.ISO_A2 ||
+        "UNKNOWN";
 
+      const countryName = country.properties.ADMIN || country.properties.NAME;
+
+      console.log("Clicked:", countryName, "Code:", countryCode);
       // Notify parent component
       if (onCountryClick) {
         onCountryClick(countryCode, countryName);
@@ -199,46 +188,39 @@ export default function WorldMap({ onCountryClick }: WorldMapProps) {
 
       // Zoom camera to country
       if (globeEl.current) {
-        // Calculate center point of country
         const { lat, lng } = getCountryCenter(country);
-
-        // Calculate appropriate zoom distance
         const altitude = getZoomAltitude(country);
 
         console.log(
-          `📍 Zooming to: ${countryName} at (${lat.toFixed(2)}, ${lng.toFixed(
+          `Zooming to: ${countryName} at (${lat.toFixed(2)}, ${lng.toFixed(
             2
           )}) altitude: ${altitude.toFixed(2)}`
         );
 
         // Animate camera to country
-        // Parameters: { lat, lng, altitude }, duration_in_ms
         globeEl.current.pointOfView(
           { lat, lng, altitude },
-          1500 // 1.5 seconds smooth animation
+          1500 // 1.5 seconds
         );
+
+        console.log("Zoom command sent");
+      } else {
+        console.error("globeEl.current is null - cannot zoom!");
       }
     }
   };
 
   // ========================================
-  // COLOR FUNCTION: Determine Country Color
-  // Returns different color for each country
-  // Brighter when hovered
+  // COLOR FUNCTION
   // ========================================
   const getPolygonColor = (country: any) => {
-    // Get country name
     const countryName = country.properties.ADMIN || "Unknown";
-
-    // Generate base color for this country
     const baseColor = getCountryColor(countryName);
 
-    // If this country is hovered, return a brighter gold color
     if (country === hoverD) {
-      return "#fbbf24"; // Gold/amber for hover
+      return "#fbbf24";
     }
 
-    // Otherwise return the country's unique color
     return baseColor;
   };
 
@@ -248,48 +230,19 @@ export default function WorldMap({ onCountryClick }: WorldMapProps) {
   return (
     <Globe
       ref={globeEl}
-      // ====================================
-      // GLOBE APPEARANCE
-      // ====================================
-
-      // Earth texture (night view with city lights)
       globeImageUrl="//unpkg.com/three-globe/example/img/earth-night.jpg"
-      // Space background with stars
       backgroundImageUrl="//unpkg.com/three-globe/example/img/night-sky.png"
-      // ====================================
-      // COUNTRY POLYGONS
-      // ====================================
-
-      // Array of country features to render
       polygonsData={countries.features}
-      // Height of each country polygon
-      // Hovered countries are taller (0.12) than others (0.06)
       polygonAltitude={(d) => (d === hoverD ? 0.12 : 0.06)}
-      // Color of country top surface (unique per country)
       polygonCapColor={getPolygonColor}
-      // Color of country side walls (semi-transparent)
       polygonSideColor={() => "rgba(0, 0, 0, 0.3)"}
-      // Color of country borders
       polygonStrokeColor={() => "#111"}
-      // Tooltip shown on hover
       polygonLabel={({ properties }: any) => `
         <b>${properties.ADMIN}</b> <br />
-        <i>${properties.ISO_A2}</i>
+        <i>${properties.ISO_A3 || properties.ADM0_A3 || "N/A"}</i>
       `}
-      // ====================================
-      // INTERACTION EVENTS
-      // ====================================
-
-      // Called when mouse enters/leaves a country
       onPolygonHover={setHoverD}
-      // Called when country is clicked
       onPolygonClick={handleCountryClick}
-      // ====================================
-      // ANIMATION SETTINGS
-      // ====================================
-
-      // Duration for polygon animations (hover effects)
-      // 300ms = smooth and responsive
       polygonsTransitionDuration={300}
     />
   );
