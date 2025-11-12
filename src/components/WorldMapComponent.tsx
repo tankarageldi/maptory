@@ -155,9 +155,7 @@ export default function WorldMap({ onCountryClick }: WorldMapProps) {
     console.log("🌍 Loading country data...");
 
     // Fetch GeoJSON file from public folder
-    fetch(
-      "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson"
-    )
+    fetch("2025.geojson")
       .then((res) => res.json())
       .then((data) => {
         console.log("✅ Loaded", data.features.length, "countries");

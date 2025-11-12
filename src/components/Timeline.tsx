@@ -24,7 +24,7 @@ export default function Timeline({ year, onYearChange }: TimelineProps) {
 
   const handleInputSubmit = () => {
     const numValue = parseInt(inputValue);
-    if (!isNaN(numValue) && numValue >= 1000 && numValue <= 2025) {
+    if (!isNaN(numValue) && numValue >= 1886 && numValue <= 2025) {
       onYearChange(numValue);
     } else {
       setInputValue(year.toString());
@@ -80,7 +80,7 @@ export default function Timeline({ year, onYearChange }: TimelineProps) {
             color: "#94a3b8",
           }}
         >
-          1000 - 2025 CE
+          1886 - 2025 CE
         </span>
       </div>
 
@@ -111,33 +111,12 @@ export default function Timeline({ year, onYearChange }: TimelineProps) {
         <Slider
           value={[year]}
           onValueChange={handleSliderChange}
-          min={1000}
+          min={1886}
           max={2025}
           step={1}
           className="w-full"
         />
       </div>
-
-      {/* Era Label */}
-      <p
-        style={{
-          fontSize: "12px",
-          textAlign: "center",
-          color: "#64748b",
-          fontStyle: "italic",
-          marginBottom: "12px",
-        }}
-      >
-        {year < 1500
-          ? "⚔️ Medieval Period"
-          : year < 1800
-          ? "🏛️ Early Modern"
-          : year < 1900
-          ? "🎩 19th Century"
-          : year < 2000
-          ? "📻 20th Century"
-          : "💻 21st Century"}
-      </p>
 
       {/* Quick Jump Buttons */}
       <div
@@ -147,7 +126,7 @@ export default function Timeline({ year, onYearChange }: TimelineProps) {
           gap: "6px",
         }}
       >
-        {[1000, 1500, 2000].map((quickYear) => (
+        {[1886, 1945, 2025].map((quickYear) => (
           <button
             key={quickYear}
             onClick={() => {

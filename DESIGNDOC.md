@@ -56,6 +56,12 @@ An interactive 3D globe application for exploring world history through time. Us
 - Smooth animations throughout the app
 - No lag when spinning or zooming the globe
 
+### 6. **Dynamic Border Changes**
+
+- Used the CShapes dataset to get the geojson file of country borders from 1886-2019
+- Processed the data to split it by time periods
+- Loading is kinda tricky, so reverted the changes back, to current borders.
+
 ---
 
 ## 🎯 Future Plans

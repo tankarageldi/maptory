@@ -26,7 +26,7 @@ const WorldMap = dynamic(() => import("@/components/WorldMapComponent"), {
 
 export default function Home() {
   // State for selected year
-  const [selectedYear, setSelectedYear] = useState(1500);
+  const [selectedYear, setSelectedYear] = useState(2025);
 
   // State for selected country
   const [selectedCountry, setSelectedCountry] = useState<{

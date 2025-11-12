@@ -13,6 +13,8 @@
 # testing
 /coverage
 
+inspect.js
+process-cshapes.js
 # next.js
 /.next/
 /out/
