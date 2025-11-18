@@ -193,7 +193,7 @@ export default function CountryInfo({
                     letterSpacing: "0.5px",
                   }}
                 >
-                  Population
+                  Population (2025)
                 </div>
                 <div
                   style={{

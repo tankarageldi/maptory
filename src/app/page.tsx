@@ -6,6 +6,7 @@ import Timeline from "@/components/Timeline";
 import CountryInfo from "@/components/CountryInfo";
 import { getCountryByCode } from "@/lib/database";
 import type { Country } from "@/lib/types";
+import HistoryDrawer from "@/components/HistoryDrawer"; // Add this import
 
 // Import WorldMap without SSR
 const WorldMap = dynamic(() => import("@/components/WorldMapComponent"), {
@@ -29,6 +30,7 @@ const WorldMap = dynamic(() => import("@/components/WorldMapComponent"), {
 export default function Home() {
   // State for selected year
   const [selectedYear, setSelectedYear] = useState(2025);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // State for selected country from Supabase
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
@@ -80,15 +82,12 @@ export default function Home() {
   const handleExplore = () => {
     if (selectedCountry) {
       console.log(
-        "🔍 Exploring:",
+        "Opening drawer for:",
         selectedCountry.name,
         "in year",
         selectedYear
       );
-      // TODO: Open modal with historical events from database
-      alert(
-        `Exploring ${selectedCountry.name} in ${selectedYear}!\n\nHistorical events coming soon...`
-      );
+      setIsDrawerOpen(true); // This opens the drawer
     }
   };
 
@@ -105,7 +104,7 @@ export default function Home() {
       <WorldMap onCountryClick={handleCountryClick} />
 
       {/* Timeline (top left) */}
-      <Timeline year={selectedYear} onYearChange={handleYearChange} />
+      {/* <Timeline year={selectedYear} onYearChange={handleYearChange} /> */}
 
       {/* Country Info (below timeline, only show if country selected) */}
       {selectedCountry && (
@@ -119,6 +118,15 @@ export default function Home() {
           region={selectedCountry.region || undefined}
           onExplore={handleExplore}
           isLoading={isLoadingCountry}
+        />
+      )}
+      {selectedCountry && (
+        <HistoryDrawer
+          isOpen={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          countryName={selectedCountry.name}
+          countryCode={selectedCountry.country_code}
+          year={selectedYear}
         />
       )}
     </main>
