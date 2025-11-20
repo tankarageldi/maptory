@@ -84,32 +84,11 @@ export default function HistoryDrawer({
   const loadHistoricalEvents = async () => {
     setIsLoading(true);
     try {
-      console.log("=== DEBUGGING HISTORY DRAWER ===");
-      console.log("📍 Country Code:", countryCode);
-      console.log("📍 Country Name:", countryName);
-      console.log("📍 Year:", year);
-
-      console.log(`📚 Fetching ALL events for ${countryCode}`);
-
       // Fetch ALL events for this country (no year range filter)
       const groupedEvents = await getHistoricalEventsGroupedByCategory(
         countryCode
         // No year range parameter - this fetches ALL events
       );
-
-      console.log("✅ Loaded events:", groupedEvents);
-      console.log("📊 Event counts by category:");
-      console.log("  - War:", groupedEvents.war?.length || 0);
-      console.log("  - Revolution:", groupedEvents.revolution?.length || 0);
-      console.log("  - Discovery:", groupedEvents.discovery?.length || 0);
-      console.log(
-        "  - Natural Disaster:",
-        groupedEvents.natural_disaster?.length || 0
-      );
-      console.log("  - Politics:", groupedEvents.politics?.length || 0);
-      console.log("  - Social:", groupedEvents.social?.length || 0);
-      console.log("  - Economics:", groupedEvents.economics?.length || 0);
-      console.log("  - Culture:", groupedEvents.culture?.length || 0);
 
       // Update event categories with fetched data
       const newCategories = [
@@ -169,10 +148,7 @@ export default function HistoryDrawer({
         },
       ];
 
-      console.log("📋 Setting categories state:", newCategories);
       setEventCategories(newCategories);
-
-      console.log("=== END DEBUGGING ===");
     } catch (error) {
       console.error("❌ Error loading historical events:", error);
       console.error("❌ Error details:", JSON.stringify(error, null, 2));
@@ -183,11 +159,9 @@ export default function HistoryDrawer({
 
   const loadCountryData = async () => {
     try {
-      console.log(`🌍 Fetching country data for ${countryCode}`);
       const data = await getCountryByCode(countryCode);
 
       if (data) {
-        console.log("✅ Loaded country data:", data);
         setCountryData(data);
       } else {
         console.warn("⚠️ No country data found for", countryCode);
@@ -197,9 +171,7 @@ export default function HistoryDrawer({
     }
   };
 
-  useEffect(() => {
-    console.log("HistoryDrawer - isOpen:", isOpen, "Country:", countryName);
-  }, [isOpen, countryName]);
+  useEffect(() => {}, [isOpen, countryName]);
 
   if (!isOpen) return null;
 

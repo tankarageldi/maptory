@@ -47,14 +47,9 @@ export default function Home() {
       name: countryName,
       flagUrl: undefined, // Will come from Supabase later
     });
-
-    console.log("Clicked:", countryName, countryCode, "Year:", selectedYear);
   };
 
   const handleCountrySearch = (countryCode: string, countryName: string) => {
-    // When a country is selected from search, select it
-    console.log("🔍 Search selected:", countryName, countryCode);
-
     setSelectedCountry({
       code: countryCode,
       name: countryName,
@@ -67,17 +62,10 @@ export default function Home() {
 
   const handleYearChange = (year: number) => {
     setSelectedYear(year);
-    console.log("Year changed to:", year);
   };
 
   const handleExplore = () => {
     if (selectedCountry) {
-      console.log(
-        "Opening drawer for:",
-        selectedCountry.name,
-        "in year",
-        selectedYear
-      );
       setIsDrawerOpen(true);
     }
   };

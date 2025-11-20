@@ -47,7 +47,6 @@ export function CountrySearch({
     try {
       const data = await getAllCountries();
       setCountries(data);
-      console.log("✅ Loaded", data.length, "countries for search");
     } catch (error) {
       console.error("❌ Error loading countries:", error);
     } finally {

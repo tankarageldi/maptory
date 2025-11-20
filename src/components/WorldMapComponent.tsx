@@ -123,8 +123,6 @@ export default function WorldMap({ onCountryClick }: WorldMapProps) {
   // LOAD COUNTRY DATA ON MOUNT
   // ========================================
   useEffect(() => {
-    console.log("Loading country data...");
-
     fetch("2025.geojson")
       .then((res) => {
         if (!res.ok) {
@@ -133,11 +131,6 @@ export default function WorldMap({ onCountryClick }: WorldMapProps) {
         return res.json();
       })
       .then((data) => {
-        console.log("Loaded", data.features.length, "countries");
-        console.log(
-          "📝 Sample country properties:",
-          data.features[0]?.properties
-        );
         setCountries(data);
       })
       .catch((err) => console.error("Error loading countries:", err));
@@ -148,19 +141,11 @@ export default function WorldMap({ onCountryClick }: WorldMapProps) {
   // ========================================
   useEffect(() => {
     if (globeEl.current) {
-      console.log(" Initializing globe...");
       // Set initial camera position
       globeEl.current.pointOfView({ altitude: 2.5 });
 
       // Check controls
       const controls = globeEl.current.controls();
-      if (controls) {
-        console.log("Globe controls available");
-      } else {
-        console.warn("⚠️ Globe controls not available");
-      }
-
-      console.log("Globe initialized successfully");
     }
   }, [countries]); // Run after countries are loaded
 
@@ -169,8 +154,6 @@ export default function WorldMap({ onCountryClick }: WorldMapProps) {
   // ========================================
   const handleCountryClick = (country: any) => {
     if (country && country.properties) {
-      console.log("All country properties:", country.properties);
-
       // Try multiple possible property names
       const countryCode =
         country.properties.ISO_A3 ||
@@ -180,7 +163,6 @@ export default function WorldMap({ onCountryClick }: WorldMapProps) {
 
       const countryName = country.properties.ADMIN || country.properties.NAME;
 
-      console.log("Clicked:", countryName, "Code:", countryCode);
       // Notify parent component
       if (onCountryClick) {
         onCountryClick(countryCode, countryName);
@@ -191,19 +173,11 @@ export default function WorldMap({ onCountryClick }: WorldMapProps) {
         const { lat, lng } = getCountryCenter(country);
         const altitude = getZoomAltitude(country);
 
-        console.log(
-          `Zooming to: ${countryName} at (${lat.toFixed(2)}, ${lng.toFixed(
-            2
-          )}) altitude: ${altitude.toFixed(2)}`
-        );
-
         // Animate camera to country
         globeEl.current.pointOfView(
           { lat, lng, altitude },
           1500 // 1.5 seconds
         );
-
-        console.log("Zoom command sent");
       } else {
         console.error("globeEl.current is null - cannot zoom!");
       }
