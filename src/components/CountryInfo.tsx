@@ -268,7 +268,7 @@ export default function CountryInfo({
                   marginTop: "2px",
                 }}
               >
-                {year} CE
+                {year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`}
               </div>
             </div>
             <div

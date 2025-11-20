@@ -1,8 +1,5 @@
 TO DO : 
 
-- add search on home page to search for countries. 
-- edit the drawer to display the countries
-- i added general information column in the countires database, get that information on the right side of the drawer for the country information. 
 - then when its done, start on bookify ai for ios, and make a landing page for bookify ai. 
 - make a personal website while doing bookify ai, update your resume, spam apply for every single job!!!!!!!
 - prepare interview.md documents for all the projects you did, and all the technologies you used.

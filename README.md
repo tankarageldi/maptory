@@ -1,51 +1,71 @@
-# 🌍 History Map - Interactive Historical Globe
+# History Map 🌍
 
-An interactive 3D globe application for exploring world history through time.
+An interactive 3D globe that lets you explore world history by clicking
+on countries and browsing events by category. Think of it as a visual
+time machine for seeing what happened anywhere in the world.
 
-## ✨ Features
+## What This Project Is
 
-- 🗺️ **Interactive 3D Globe** - Smooth, rotatable Earth with clickable countries
-- ⏰ **Dynamic Timeline** - Explore history from 1000 CE to present day
-- 🏴 **Country Details** - View historical events for each country at different time periods
-- 📚 **Historical Database** - Powered by Supabase with comprehensive historical data
-- 🎨 **Modern UI** - Built with shadcn/ui components and Tailwind CSS
+This repo powers **History Map**, a visual history explorer built with:
 
-## 🚀 Tech Stack
+- **Next.js 14**
+- **TypeScript**
+- **globe.gl**
+- **Supabase**
+- **shadcn/ui**
 
-- **Frontend:** Next.js 14, React, TypeScript
-- **3D Visualization:** globe.gl, Three.js
-- **Database:** Supabase
-- **Styling:** Tailwind CSS, shadcn/ui
-- **Deployment:** Vercel (coming soon)
+The app handles the visualization.\
+**This repository is mainly for maintaining the community-driven
+database of historical events.**
 
-## 🛠️ Getting Started
+## How You Can Contribute
 
-[Installation and setup instructions]
+You don't need to download or run the project.\
+The most valuable contribution is helping populate the **historical
+events database**.
 
-## 🗺️ Roadmap
+### ✅ Submit a CSV file
 
-- [ ] Historical border changes based on time period
-- [ ] iOS app version
-- [ ] More historical events and data
-- [ ] User accounts and favorites
-- [ ] Quiz mode
-- [ ] 3D historical landmarks
+Open an **Issue** or **Pull Request** with a `.csv` file containing
+historical events for any country.
 
-## 📝 License
+Your CSV must include the following columns:
 
-MIT
+    id
+    country_code
+    year          (use negative numbers for BCE)
+    title
+    description
+    category       (war, politics, culture, religion, natural_disaster, economics, social, discovery, etc.)
+    created_at
+    updated_at
 
-## 🤝 Contributing
+### Example Row
 
-Contributions welcome! Feel free to open issues or submit PRs.
+    UUID, USA, 1776, "Declaration of Independence", "The thirteen colonies declared independence from Great Britain.", politics, NOW(), NOW()
 
-```
+### What You Can Add
 
----
+- Missing historical events for any country\
+- Detailed descriptions or improved context\
+- Corrections or new categories (when appropriate)
 
-## 🎯 My Recommendation
+## Why Contribute?
 
-Use this as your description:
-```
+The goal is to build the **largest community-maintained world history
+dataset** --- simple, structured, and visual.\
+Your contributions help make the globe richer and more accurate for
+everyone.
 
-🌍 Interactive 3D globe for exploring world history through time. Select any country and travel through different time periods to discover historical events, with a dynamic timeline from 1000 CE to present.
+## Future Ideas
+
+- Timeline slider\
+- Historical borders\
+- Images or maps in event details\
+- Multi-language support\
+- Mobile version\
+- User accounts for favorites
+
+## License
+
+MIT --- feel free to fork, modify, and contribute.

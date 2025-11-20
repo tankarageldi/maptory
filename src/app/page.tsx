@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
-import Timeline from "@/components/Timeline";
-import CountryInfo from "@/components/CountryInfo";
-import { getCountryByCode } from "@/lib/database";
-import type { Country } from "@/lib/types";
-import HistoryDrawer from "@/components/HistoryDrawer"; // Add this import
+// import Timeline from "@/components/Timeline"; // Commented out
+import { CountrySearch } from "@/components/CountrySearch";
+import HistoryDrawer from "@/components/HistoryDrawer";
 
 // Import WorldMap without SSR
 const WorldMap = dynamic(() => import("@/components/WorldMapComponent"), {
@@ -30,53 +28,46 @@ const WorldMap = dynamic(() => import("@/components/WorldMapComponent"), {
 export default function Home() {
   // State for selected year
   const [selectedYear, setSelectedYear] = useState(2025);
+
+  // State for selected country
+  const [selectedCountry, setSelectedCountry] = useState<{
+    code: string;
+    name: string;
+    flagUrl?: string;
+  } | null>(null);
+
+  // State for drawer
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // State for selected country from Supabase
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const handleCountryClick = (countryCode: string, countryName: string) => {
+    // For now, set country without flag URL
+    // Later: fetch flag URL from Supabase here
+    setSelectedCountry({
+      code: countryCode,
+      name: countryName,
+      flagUrl: undefined, // Will come from Supabase later
+    });
 
-  // Loading state
-  const [isLoadingCountry, setIsLoadingCountry] = useState(false);
+    console.log("Clicked:", countryName, countryCode, "Year:", selectedYear);
+  };
 
-  const handleCountryClick = async (
-    countryCode: string,
-    countryName: string
-  ) => {
-    console.log("🖱️ Clicked:", countryName, countryCode);
+  const handleCountrySearch = (countryCode: string, countryName: string) => {
+    // When a country is selected from search, select it
+    console.log("🔍 Search selected:", countryName, countryCode);
 
-    setIsLoadingCountry(true);
+    setSelectedCountry({
+      code: countryCode,
+      name: countryName,
+      flagUrl: undefined,
+    });
 
-    try {
-      // Fetch detailed country info from Supabase
-      const countryData = await getCountryByCode(countryCode);
-
-      if (countryData) {
-        setSelectedCountry(countryData);
-        console.log("✅ Loaded country data from Supabase:", countryData);
-      } else {
-        console.warn(`⚠️ Country ${countryCode} not found in database`);
-        // Fallback: create basic country object from GeoJSON data
-        setSelectedCountry({
-          country_code: countryCode,
-          name: countryName,
-          flag_url: null,
-          current_capital: null,
-          current_population: null,
-          region: null,
-          created_at: "",
-          updated_at: "",
-        } as Country);
-      }
-    } catch (error) {
-      console.error("❌ Error fetching country:", error);
-    } finally {
-      setIsLoadingCountry(false);
-    }
+    // TODO: Zoom globe to this country
+    // You'll need to add a method to WorldMap to programmatically zoom to a country
   };
 
   const handleYearChange = (year: number) => {
     setSelectedYear(year);
-    console.log("📅 Year changed to:", year);
+    console.log("Year changed to:", year);
   };
 
   const handleExplore = () => {
@@ -87,7 +78,7 @@ export default function Home() {
         "in year",
         selectedYear
       );
-      setIsDrawerOpen(true); // This opens the drawer
+      setIsDrawerOpen(true);
     }
   };
 
@@ -103,29 +94,20 @@ export default function Home() {
       {/* Globe (background layer) */}
       <WorldMap onCountryClick={handleCountryClick} />
 
-      {/* Timeline (top left) */}
-      {/* <Timeline year={selectedYear} onYearChange={handleYearChange} /> */}
+      {/* Country Search (top left) */}
+      <CountrySearch
+        onCountrySelect={handleCountrySearch}
+        selectedCountryCode={selectedCountry?.code || ""}
+        onExplore={handleExplore}
+      />
 
-      {/* Country Info (below timeline, only show if country selected) */}
-      {selectedCountry && (
-        <CountryInfo
-          countryName={selectedCountry.name}
-          countryCode={selectedCountry.country_code}
-          year={selectedYear}
-          flagUrl={selectedCountry.flag_url || undefined}
-          capital={selectedCountry.current_capital || undefined}
-          population={selectedCountry.current_population || undefined}
-          region={selectedCountry.region || undefined}
-          onExplore={handleExplore}
-          isLoading={isLoadingCountry}
-        />
-      )}
+      {/* History Drawer */}
       {selectedCountry && (
         <HistoryDrawer
           isOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
           countryName={selectedCountry.name}
-          countryCode={selectedCountry.country_code}
+          countryCode={selectedCountry.code}
           year={selectedYear}
         />
       )}

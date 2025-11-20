@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import { Country } from "./types";
+import { Country, HistoricalEvent } from "./types";
 
 /**
  * Fetch all countries from the database
@@ -59,4 +59,121 @@ export async function searchCountries(searchTerm: string): Promise<Country[]> {
   }
 
   return data || [];
+}
+
+/**
+ * Fetch historical events for a specific country
+ * @param countryCode - 3-letter ISO country code
+ * @param yearRange - Optional: fetch events within a range [startYear, endYear]
+ * @returns Array of historical events for the country
+ */
+export async function getHistoricalEvents(
+  countryCode: string,
+  yearRange?: [number, number]
+): Promise<HistoricalEvent[]> {
+  let query = supabase
+    .from("historical_events")
+    .select("*")
+    .eq("country_code", countryCode)
+    .order("year", { ascending: false });
+
+  // If year range provided, filter by it
+  if (yearRange) {
+    const [startYear, endYear] = yearRange;
+    query = query.gte("year", startYear).lte("year", endYear);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error(
+      `Error fetching historical events for ${countryCode}:`,
+      error
+    );
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Fetch historical events for a specific country and category
+ * @param countryCode - 3-letter ISO country code
+ * @param category - Event category (war, revolution, discovery, etc.)
+ * @param yearRange - Optional: fetch events within a range [startYear, endYear]
+ * @returns Array of historical events for the country in that category
+ */
+export async function getHistoricalEventsByCategory(
+  countryCode: string,
+  category: string,
+  yearRange?: [number, number]
+): Promise<HistoricalEvent[]> {
+  let query = supabase
+    .from("historical_events")
+    .select("*")
+    .eq("country_code", countryCode)
+    .eq("category", category)
+    .order("year", { ascending: false });
+
+  // If year range provided, filter by it
+  if (yearRange) {
+    const [startYear, endYear] = yearRange;
+    query = query.gte("year", startYear).lte("year", endYear);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error(
+      `Error fetching ${category} events for ${countryCode}:`,
+      error
+    );
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Group historical events by category for a specific country
+ * @param countryCode - 3-letter ISO country code
+ * @param yearRange - Optional: fetch events within a range [startYear, endYear]
+ * @returns Object with events grouped by category
+ */
+export async function getHistoricalEventsGroupedByCategory(
+  countryCode: string,
+  yearRange?: [number, number]
+): Promise<Record<string, HistoricalEvent[]>> {
+  const events = await getHistoricalEvents(countryCode, yearRange);
+
+  // Group events by category
+  const grouped: Record<string, HistoricalEvent[]> = {
+    war: [],
+    revolution: [],
+    discovery: [],
+    natural_disaster: [],
+    politics: [],
+    social: [],
+    economics: [],
+    culture: [],
+    religion: [],
+  };
+
+  events.forEach((event) => {
+    // Normalize category: lowercase and replace spaces with underscores
+    const normalizedCategory = event.category
+      .toLowerCase()
+      .replace(/\s+/g, "_");
+
+    if (grouped[normalizedCategory]) {
+      grouped[normalizedCategory].push(event);
+    } else {
+      // Log unknown categories for debugging
+      console.warn(
+        `Unknown category: "${event.category}" (normalized: "${normalizedCategory}")`
+      );
+    }
+  });
+
+  return grouped;
 }
